@@ -7,7 +7,15 @@
 //
 
 #include "ofxVideoHubControl.h"
+#include "ofxTCPClient.h"
 
+ofxVideoHubControl::ofxVideoHubControl() {
+	this->videohubClient = new ofxTCPClient();
+}
+
+ofxVideoHubControl::~ofxVideoHubControl() {
+	delete this->videohubClient;
+}
 
 void ofxVideoHubControl::setup(){
     rcvStatus = "";
@@ -19,24 +27,24 @@ void ofxVideoHubControl::setup(){
     
     routingUpdate = outputLabelsUpdate = inputLabelsUpdate = false;
     
-    weConnected = videohubClient.setup(addr, VIDEOHUB_PORT);
-    videohubClient.setMessageDelimiter("\n");
-    videohubClient.setVerbose("true");
+    weConnected = videohubClient->setup(addr, VIDEOHUB_PORT);
+    videohubClient->setMessageDelimiter("\n");
+    videohubClient->setVerbose("true");
     
-    videohubClient.send("\n\n");
+    videohubClient->send("\n\n");
     update();
 }
 
 void ofxVideoHubControl::setAddress(string address){
     addr = address;
-    videohubClient.close();
-    weConnected = videohubClient.setup(addr, VIDEOHUB_PORT);
-    videohubClient.setMessageDelimiter("\n");
-    videohubClient.setVerbose("true");
+    videohubClient->close();
+    weConnected = videohubClient->setup(addr, VIDEOHUB_PORT);
+    videohubClient->setMessageDelimiter("\n");
+    videohubClient->setVerbose("true");
 }
 
 void ofxVideoHubControl::update(){
-    if(!videohubClient.isConnected()){
+    if(!videohubClient->isConnected()){
         weConnected = false;
     }
     
@@ -44,7 +52,7 @@ void ofxVideoHubControl::update(){
         string str;
         string rcvMsg = "";
         bool rcv = false;
-        while((str = videohubClient.receive()).size() > 0){
+        while((str = videohubClient->receive()).size() > 0){
             rcvMsg += str;
             rcvMsg += "\n";
             rcv = true;
@@ -152,7 +160,7 @@ void ofxVideoHubControl::update(){
 		deltaTime = ofGetElapsedTimeMillis() - connectTime;
         
 		if( deltaTime > 5000 ){
-			weConnected = videohubClient.setup("10.0.0.15", 9990);
+			weConnected = videohubClient->setup("10.0.0.15", 9990);
 			connectTime = ofGetElapsedTimeMillis();
 		}
         
@@ -207,14 +215,14 @@ map<int, string> ofxVideoHubControl::getOutputLabels (){
 
 void ofxVideoHubControl::checkRouting(){
     string cmd = "VIDEO OUTPUT ROUTING:\n\n";
-    videohubClient.send(cmd);
+    videohubClient->send(cmd);
 }
 
 void ofxVideoHubControl::checkLabels(){
     string cmd = "VIDEO INPUT LABELS:\n\n";
-    videohubClient.send(cmd);
+    videohubClient->send(cmd);
     cmd = "VIDEO OUTPUT LABELS:\n\n";
-    videohubClient.send(cmd);
+    videohubClient->send(cmd);
 }
 
 
@@ -226,7 +234,7 @@ void ofxVideoHubControl::setRoute(int output, int input){
     cmd += ofToString(input);
     cmd += "\n\n";
     cout<<"sending : "<<cmd<<endl;
-    videohubClient.send(cmd);
+    videohubClient->send(cmd);
 }
 
 void ofxVideoHubControl::setInputLabel(int idLabel, string label){
@@ -236,7 +244,7 @@ void ofxVideoHubControl::setInputLabel(int idLabel, string label){
     cmd += ofToString(label);
     cmd += "\n\n";
     cout<<"sending : "<<cmd<<endl;
-    videohubClient.send(cmd);
+    videohubClient->send(cmd);
 }
 
 void ofxVideoHubControl::setOutputLabel(int idLabel, string label){
@@ -246,7 +254,7 @@ cmd += " new output label ";
 cmd += ofToString(label);
 cmd += "\n\n";
 cout<<"sending : "<<cmd<<endl;
-videohubClient.send(cmd);
+videohubClient->send(cmd);
 }
 
 string ofxVideoHubControl::getReceiveStatus(){

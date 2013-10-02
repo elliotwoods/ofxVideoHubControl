@@ -8,14 +8,18 @@
 
 #pragma once
 
-#include "ofxTCPClient.h"
 #include "ofMain.h"
+
+class ofxTCPClient;
 
 #define VIDEOHUB_PORT 9990
 #define VIDEOHUB_ADDR "localhost"
 
 class ofxVideoHubControl {
 public:
+	ofxVideoHubControl();
+	~ofxVideoHubControl();
+
     void setup();
     void setAddress(string address);
     void update();
@@ -46,7 +50,7 @@ private:
     map <int, string> inputLabelTable;
     map <int, string> outputLabelTable;
     
-    ofxTCPClient videohubClient;
+    ofxTCPClient* videohubClient;
     
     string addr;
     
